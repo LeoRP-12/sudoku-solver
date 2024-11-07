@@ -109,7 +109,7 @@ def main():
     for i in quadrado:
         if len(quadrado[i])==1:
             matriz[int(i[0])] = matriz[int(i[0])][:int(i[2:])]+str(quadrado[i][0])+ matriz[int(i[0])][(int(i[2:])+1):]
-            main()    
+            main()
 ################critério das linhas#################
     linha = {}
     for n in range(0,9):
