@@ -187,11 +187,86 @@ class SudokuSolver:
             print(line)
 
 
+    def _check_col(self, row: int, col: int, num: str) -> bool:
+        """Check if a number can be placed in the specified column."""
+        for i in range(9):
+            if self.board[i][col] == num:
+                return False
+        return True
+    
+    def _check_row(self, row: int, col: int, num: str) -> bool:
+        """Check if a number can be placed in the specified row."""
+        for j in range(1, 19, 2):
+            if self.board[row][j] == num:
+                return False
+        return True
+    
+    def _check_block(self, row: int, col: int, num: str) -> bool:
+        """Check if a number can be placed in the 3x3 block."""
+        block_row_start = (row // 3) * 3
+        block_col_start = ((col - 1) // 6) * 6 + 1
+        for i in range(block_row_start, block_row_start + 3):
+            for j in range(block_col_start, block_col_start + 6, 2):
+                if self.board[i][j] == num:
+                    return False
+        return True
+    
+    def is_valid(self, row: int, col: int, num: str) -> bool:
+        """
+        Check if placing a number in the specified cell is valid.
+
+        Parameters
+        ----------
+        row : int
+            The row index (0-8).
+        col : int
+            The column index (1, 3, 5, ..., 17).
+        num : str
+            The number to check (as a string).
+
+        Returns
+        -------
+        bool
+            True if valid, False otherwise.
+        """
+        return (
+            self._check_row(row, col, num) and
+            self._check_col(row, col, num) and
+            self._check_block(row, col, num)
+        )
+
+    
+    def solve_with_backtracking(self) -> bool:
+        """
+        Solve the Sudoku puzzle using backtracking algorithm.
+
+        Returns
+        -------
+        bool
+            True if the puzzle is solved, False otherwise.
+        """
+        # Find the next empty cell
+        for i in range(9):
+            for j in range(1, 19, 2):
+                if self.board[i][j] == " ":
+                    for num in map(str, range(1, 10)):
+                        if self.is_valid(i, j, num):
+                            # Try this number
+                            self.board[i] = self.board[i][:j] + num + self.board[i][j+1:]
+                            if self.solve_with_backtracking():
+                                return True
+                            # Undo move
+                            self.board[i] = self.board[i][:j] + " " + self.board[i][j+1:]
+                    return False  # No valid number found, trigger backtracking
+        print("\nFinal board:")
+        self.print_board()
+        return True
+
+    
     def solve(self) -> None:
         """Solve the Sudoku puzzle using logical strategies.
         Fills as much as possible without guessing."""
 
-        any_change = False
         while True:
             self.eliminate_possibilities()
             changed = (
@@ -202,11 +277,12 @@ class SudokuSolver:
             )
             if not changed:
                 break
-            any_change = True
-
+        if self.possibilities:
+            return self.solve_with_backtracking()
+        
         print("\nFinal board:")
         self.print_board()
-        return any_change
+        return True
     
     def get_board(self) -> List[str]:
         """
