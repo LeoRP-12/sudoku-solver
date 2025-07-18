@@ -1,4 +1,3 @@
-import pytest
 from src.solver import SudokuSolver
 from typing import List
 
@@ -54,7 +53,7 @@ def is_board_filled(board: List[str]) -> bool:
 
 
 class TestSudokuSolver:
-    def test_level1_solver(self):
+    def test_solver_level1(self):
         board = """
         | |4| |9|5|3|1|2| |
         |3|1| | | | |9|5| |
@@ -88,7 +87,7 @@ class TestSudokuSolver:
         assert solver.board == expected_solution_lines
 
 
-    def test_level2_solver(self):
+    def test_solver_level2(self):
 
         board = """
         |1| | |6| | | |8|4|
@@ -123,7 +122,7 @@ class TestSudokuSolver:
         assert solver.board == expected_solution_lines
 
 
-    def test_level3_solver(self):
+    def test_solver_level3(self):
         board = """
         | |4| |9|5|3|1|2| |
         |3|1| | | | |9|5| |
@@ -157,7 +156,7 @@ class TestSudokuSolver:
         assert solver.board == expected_solution_lines
 
 
-    def test_level4_solver(self):
+    def test_solver_level4(self):
         board = """
         |1| | |9|2| | | | |
         |5|2|4| |1| | | | |
@@ -191,10 +190,48 @@ class TestSudokuSolver:
         assert solver.board == expected_solution_lines
 
 
+    def test_solver_level_insane(self):
+        board = """
+        | | | | | |6| | | |
+        | |5|9| | | | | |8|
+        |2| | | | |8| | | |
+        | |4|5| | | | | | |
+        | | |3| | | | | | |
+        | | |6| | |3| |5|4|
+        | | | |3|2|5| | |6|
+        | | | | | | | | | |
+        | | | | | | | | | |
+        """
+
+        board_lines = [line.strip() for line in board.strip().splitlines()]
+
+        solver = SudokuSolver(board_lines)
+        solver.solve()
+
+        assert is_board_filled(solver.board) # This board have multiple solutions, but the solver should fill it correctly.
+
+    def test_solver_level_impossible(self):
+        board = """
+        | | | | | |5| |8| |
+        | | | |6| |1| |4|3|
+        | | | | | | | | | |
+        | |1| |5| | | | | |
+        | | | |1| |6| | | |
+        |3| | | | | | | |5|
+        |5|3| | | | | |6|1|
+        | | | | | | | | |4|
+        | | | | | | | | | |
+        """
+        board_lines = [line.strip() for line in board.strip().splitlines()]
+        solver = SudokuSolver(board_lines)
+        assert not is_board_filled(solver.board) # The board is impossible to solve, so it should not be filled.
+
+
     def test_project_euler_sudoku_sum(self):
         """
         Test solving 50 Sudoku puzzles and calculating the sum of the
-        top-left 3-digit numbers in each solved puzzle.
+        top-left 3-digit numbers in each solved puzzle. based on Project Euler problem 96, checked on July 2025.
+        https://projecteuler.net/problem=96
         """
         puzzles = load_sudoku_puzzles("tests/project_euler_sudoku.txt")
         total = 0
@@ -215,30 +252,30 @@ class TestSudokuSolver:
         assert len(puzzles) == 50, f"Expected 50 puzzles, but got {len(puzzles)}"
 
         unsolved_indices = []
-        for idx, puzzle in enumerate(puzzles):
+        for index, puzzle in enumerate(puzzles):
             solver = SudokuSolver(puzzle)
             solver.solve()
             if not is_board_filled(solver.board):
-                unsolved_indices.append(idx + 1)
+                unsolved_indices.append(index + 1)
 
         assert not unsolved_indices, f"Solver failed to fully solve the following puzzles: {unsolved_indices}"
 
     def test_hardest_puzzles_solver(self):
         puzzles = load_sudoku_puzzles("tests/hardest_puzzles.txt")
 
-        for idx, puzzle in enumerate(puzzles):
+        for index, puzzle in enumerate(puzzles):
             solver = SudokuSolver(puzzle)
             solver.solve()
-            assert is_board_filled(solver.board), f"Puzzle {idx + 1} was not fully solved."
+            assert is_board_filled(solver.board), f"Puzzle {index + 1} was not fully solved."
 
-    # def test_solver_can_solve_all_hard_puzzles(self):
-    #     puzzles = load_sudoku_puzzles("tests/hard_puzzles.txt")
+    def test_solver_can_solve_all_hard_puzzles(self):
+        puzzles = load_sudoku_puzzles("tests/hard_puzzles.txt")
 
-    #     unsolved_indices = []
-    #     for idx, puzzle in enumerate(puzzles):
-    #         solver = SudokuSolver(puzzle)
-    #         solver.solve()
-    #         if not is_board_filled(solver.board):
-    #             unsolved_indices.append(idx + 1)
+        unsolved_indices = []
+        for index, puzzle in enumerate(puzzles):
+            solver = SudokuSolver(puzzle)
+            solver.solve()
+            if not is_board_filled(solver.board):
+                unsolved_indices.append(index + 1)
 
-    #     assert not unsolved_indices, f"Solver failed to fully solve the following hardest puzzles: {unsolved_indices}"
+        assert not unsolved_indices, f"Solver failed to fully solve the following hardest puzzles: {unsolved_indices}"

@@ -1,7 +1,7 @@
 import streamlit as st
+import time
 from solver import SudokuSolver
 
-# Interface com Streamlit
 st.title("Resolvedor de Sudoku")
 
 st.markdown("Insira o tabuleiro abaixo, com o formato visual (ex: `|9| |7| | | | | | |`). Use espaços em branco para células vazias.")
@@ -29,9 +29,14 @@ if st.button("Resolver Sudoku"):
     else:
         try:
             solver = SudokuSolver(lines)
-            if solver.solve():
+            start_time = time.perf_counter()
+            result = solver.solve()
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            if result:
                 st.success("Sudoku resolvido com sucesso!")
                 st.text("\n".join(solver.get_board()))
+                st.text(f"Tempo de resolução: {elapsed_time*1000:.1f} milisegundos")
             else:
                 st.error("Não foi possível resolver o Sudoku.")
         except Exception as e:
